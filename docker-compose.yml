@@ -1,0 +1,41 @@
+version: '3'
+services:
+  movie-mysql:
+   image: mysql:5.5
+   ports:
+     - "3306:3306"
+   container_name: mysql-docker-image
+   network_mode: host
+   environment:
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_DATABASE: movieDb
+     MYSQL_USER: app_root
+     MYSQL_PASSWORD: root123
+  user-app:
+    image: user-app
+    build: security-sso/
+    restart: always
+    network_mode: host
+    container_name: auth-service-image
+    depends_on:
+      - movie-mysql
+    ports:
+      - 8082:8082
+  movie-app:
+    image: movie-app
+    build: backend/
+    restart: always
+    network_mode: host
+    container_name: backend-service-image
+    depends_on:
+      - movie-mysql
+    ports:
+      - 8080:8080
+
+  angular:
+    image: angular-image
+    build: frontend/movie-cruiser-ui/
+    network_mode: host
+    container_name: angular-docker
+    ports:
+      - 4200:4200
